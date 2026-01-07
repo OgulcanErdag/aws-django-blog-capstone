@@ -77,7 +77,7 @@ The Blog Page Application is a Django-based web application deployed on AWS Clou
 
 Before we start, we need to create our security groups. Our EC2 and RDS are going to be located in Private subnet and ALB and NAT Instance are going to be located in Public subnet. In addition, RDS only accepts traffic coming from EC2 and EC2s only accepts traffic coming from ALB. NAT instance needs HTTP, HTTPS and SSH. So, Lets create security groups based on these requirements.
 
-```text
+```bash
 1. ALB Security Group
 Name            : aws-capstone-alb-sg
 Description     : ALB Security Group allows traffic HTTP and HTTPS ports from anywhere
@@ -194,7 +194,7 @@ Subnets            : Select 2 Private Subnets in these subnets (x.x.11.0, x.x.21
 
 - Now we can launch DB instance on RDS console. Go to the RDS console and click `create database` button
 
-```text
+```bash
 Choose a database creation method : Standard Create
 Engine Type     : MySQL
 Edition         : MySQL Community
@@ -234,8 +234,8 @@ One of them is going to be used for videos and pictures which will be uploaded o
 
 - Click Create Bucket
 
-```text
-Bucket Name : awscapstones<name>blog
+```js
+Bucket Name : aws-capstones-ogulcan-blog
 Region      : N.Virginia
 Object Ownership
     - ACLs enabled
@@ -301,7 +301,7 @@ aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro 
 
 example:
 
-aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name ogulcan --security-group-ids sg-0aabfe7d667a21340 --subnet-id subnet-00ce588aa62f66639 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
+aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name first-key --security-group-ids sg-060d0b00d654dcdcb --subnet-id subnet-0a60639c873ebff7b --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
 ```
 
 - !!!!!! Warning!!!!!!select NAT instance and `enable stop` source/destination check
@@ -405,7 +405,7 @@ After we create user data, and change the S3 and RDS variables into settings.py 
 Instance properties:
 
 - Name: aws-capstone-test-instance
-- Ubuntu 22.04
+- Ubuntu 22.04 (LTS)
 - Key Pair: your key
 - Subnet: aws-capstone-public-1a !!!!!!!!!!!!! (PUBLIC SUBNET)
 - Security Group
@@ -440,13 +440,13 @@ sudo ./aws/install
 cd /home/ubuntu/
 TOKEN=$(aws --region=us-east-1 ssm get-parameter --name /ogulcan/capstone/token --with-decryption --query 'Parameter.Value' --output text)
 #git clone https://$TOKEN@github.com/<yourreponame>/aws-capstone-project.git
-git clone https://$TOKEN@github.com/ogulcan-kaplan/ogulcan-capstone.git
+git clone https://$TOKEN@github.com/OgulcanErdag/aws-django-blog-capstone.git
 #cd /home/ubuntu/aws-capstone-project
-cd /home/ubuntu/ogulcan-capstone
+cd /home/ubuntu/aws-django-blog-capstone
 apt-get install python3.10-dev default-libmysqlclient-dev -y
 pip3 install -r requirements.txt
 #cd /home/ubuntu/aws-capstone-project/src
-cd /home/ubuntu/ogulcan-capstone/src
+cd /home/ubuntu/aws-django-blog-capstone/src
 python3 manage.py collectstatic --noinput
 python3 manage.py makemigrations
 python3 manage.py migrate
@@ -465,7 +465,7 @@ Ok, now we've create our VPC, defined security groups and written our user data 
 
 To create Launch Template, go to the EC2 console and select `Launch Template` on the left hand menu. Click the Create Launch Template button.
 
-```text
+```bash
 Launch template name                : aws-capstone-launch-template
 Template version description        : Blog Web Page version 1
 Amazon machine image (AMI)          : Ubuntu 22.04
@@ -496,7 +496,7 @@ Advance Details:
 
 Now, we'll create ALB and Target Group. Go to the EC2 console and click the Load Balancers on the left hand menu. click `create Load Balancer` button and select Application Load Balancer
 
-```text
+```bash
 Application Load Balancer ---> Create
 Basic Configuration:
 Name                    : aws-capstone-alb
@@ -560,7 +560,7 @@ Secure Listener Settings        :
 
 After creation of ALB, our ALB have to redirect http traffic to https port. Because our requirement wants to secure traffic. Thats why we should change listener rules. Go to the ALB console and select Listeners sub-section
 
-```text
+```bash
 select HTTP: 80 rule ---> Select Manage Rules | Edit rules
 - Check Default under "Listener Rules"
 - Click `Actions | Edit rule`
@@ -585,14 +585,14 @@ Now we'll create our Autoscaling Group. We'll use newly created Launch Template.
 
 - Choose launch template or configuration
 
-```text
+```bash
 Auto Scaling group name         : aws-capstone-asg
 Launch Template                 : aws-capstone-launch-template
 ```
 
 - Configure settings
 
-```text
+```bash
 Network                         :
     - VPC                       : aws-capstone-vpc
     - Subnets                   : Private 1a and Private 1b
@@ -600,7 +600,7 @@ Network                         :
 
 Configure advanced options
 
-```text
+```bash
 - Load balancing                                : Attach to an existing load balancer
 - Choose from your load balancer target groups  : awscapstoneTargetGroup
 - Health Checks
@@ -610,7 +610,7 @@ Configure advanced options
 
 - Configure group size and scaling policies
 
-```text
+```bash
 Group size
     - Desired capacity  : 1
     - Minimum capacity  : 1
@@ -655,7 +655,7 @@ Additional settings         : Keep it as is
 
 Default Cache Behavior Settings
 
-```text
+```
 Path pattern                                : Default (*)
 Compress objects automatically              : Yes
 Viewer Protocol Policy                      : Redirect HTTP to HTTPS
