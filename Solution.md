@@ -297,11 +297,11 @@ select NAT Instance `ami-0780b09c119334593`
 - Click on `Launch Instance`
 
 ```bash
-aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name XXX --security-group-ids sg-XXX --subnet-id subnet-XXX --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=betul-NAT-instance}]'
+aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name XXX --security-group-ids sg-XXX --subnet-id subnet-XXX --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-NAT-instance}]'
 
 example:
 
-aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name betulk --security-group-ids sg-0aabfe7d667a21340 --subnet-id subnet-00ce588aa62f66639 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=betul-aws-capstone-nat-instance}]' --disable-api-termination
+aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name ogulcan --security-group-ids sg-0aabfe7d667a21340 --subnet-id subnet-00ce588aa62f66639 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
 ```
 
 - !!!!!! Warning!!!!!!select NAT instance and `enable stop` source/destination check
@@ -438,15 +438,15 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 unzip awscliv2.zip
 sudo ./aws/install
 cd /home/ubuntu/
-TOKEN=$(aws --region=us-east-1 ssm get-parameter --name /betul/capstone/token --with-decryption --query 'Parameter.Value' --output text)
+TOKEN=$(aws --region=us-east-1 ssm get-parameter --name /ogulcan/capstone/token --with-decryption --query 'Parameter.Value' --output text)
 #git clone https://$TOKEN@github.com/<yourreponame>/aws-capstone-project.git
-git clone https://$TOKEN@github.com/betul-kaplan/betul-capstone.git
+git clone https://$TOKEN@github.com/ogulcan-kaplan/ogulcan-capstone.git
 #cd /home/ubuntu/aws-capstone-project
-cd /home/ubuntu/betul-capstone
+cd /home/ubuntu/ogulcan-capstone
 apt-get install python3.10-dev default-libmysqlclient-dev -y
 pip3 install -r requirements.txt
 #cd /home/ubuntu/aws-capstone-project/src
-cd /home/ubuntu/betul-capstone/src
+cd /home/ubuntu/ogulcan-capstone/src
 python3 manage.py collectstatic --noinput
 python3 manage.py makemigrations
 python3 manage.py migrate
