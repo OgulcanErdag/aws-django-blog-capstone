@@ -82,12 +82,12 @@ WSGI_APPLICATION = 'cblog.wsgi.application'
 def get_ssm_parameters():
     ssm = boto3.client('ssm', region_name='us-east-1')
 
-    # AWS SSM Parametr define
-    username_param = ssm.get_parameter(Name="/<yourname>/capstone/username", WithDecryption=True)
-    password_param = ssm.get_parameter(Name="/<yourname>/capstone/password", WithDecryption=True)
+    # AWS SSM Parameter define
+    username_param = ssm.get_parameter(Name="/ogulcan/capstone/username", WithDecryption=True)
+    password_param = ssm.get_parameter(Name="/ogulcan/capstone/password", WithDecryption=True)
 
 
-    # Parametre retrieve
+    # Parameter retrieve
     username = username_param['Parameter']['Value']
     password = password_param['Parameter']['Value']
 
@@ -102,7 +102,7 @@ DATABASES = {
         'NAME': 'ondia',
         'USER': db_username,
         'PASSWORD': db_password,
-        'HOST': 'xxxxxxxxxxxxxxxxxxxxxxxxxx.us-east-1.rds.amazonaws.com',
+        'HOST': 'aws-capstone-rds.c2viygw8azkv.us-east-1.rds.amazonaws.com',
         'PORT': '3306',
     }
 }
@@ -156,7 +156,7 @@ LOGIN_REDIRECT_URL = "blog:list"
 LOGIN_URL = "login"
 
 
-AWS_STORAGE_BUCKET_NAME = 'xxxxxxx-static-capstone' # please enter your s3 bucket name
+AWS_STORAGE_BUCKET_NAME = 'aws-capstones-ogulcan-blog' # please enter your s3 bucket name
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_REGION_NAME = "us-east-1" # please enter your s3 region 
 AWS_DEFAULT_ACL = 'public-read'
