@@ -186,7 +186,7 @@ MYSQL/Aurora(3306)  ----> aws-capstone-ec2-sg
 
 Lets create our RDS instance in which users information are kept. Before we create our database, first we need to do is to create Subnet Group. We've spoon up our RDS instance in our default VPC until now. That's why we haven't come across network issue. However, we should arrange subnet group for our custom VPC. Click `subnet Groups` on the left hand menu and click `create DB Subnet Group`
 
-```text
+```bash
 Name               : aws-capstone-rds-subnet-group
 Description        : aws-capstone-rds-subnet-group
 VPC                : aws-capstone-vpc
@@ -237,7 +237,7 @@ One of them is going to be used for videos and pictures which will be uploaded o
 
 - Click Create Bucket
 
-```js
+```bash
 Bucket Name : aws-capstones-ogulcan-blog
 Region      : N.Virginia
 Object Ownership
@@ -268,7 +268,7 @@ Please keep other settings as are
 
 - Selects created `www.ogulcan-erdag.de` bucket ---> Properties ---> Static website hosting
 
-```text
+```bash
 Static website hosting : Enable
 Hosting Type : Host a static website
 Index document : index.html
@@ -422,9 +422,11 @@ Instance properties:
 
 - !!!!!!!!user data : 4 things must be changed!!!!!!!!!
 
+```bash
 - token: `TOKEN=$(aws --region=us-east-1 ssm get-parameter --name /<yourname>/capstone/token --with-decryption --query 'Parameter.Value' --output text)`
 - git clone command: `git clone https://$TOKEN@github.com/<yourreponame>/aws-capstone-project.git`
 - and folder paths: `cd /home/ubuntu/aws-capstone-project` and `cd /home/ubuntu/aws-capstone-project/src`
+```
 
 - Apply this these commands to ec2 `manually`
 
@@ -493,7 +495,7 @@ Advance Details:
 # once since it re-configures the database
 ```
 
-- create launch template
+- `create launch template`
 
 ## Step 12: Create ALB and Target Group
 
@@ -545,8 +547,10 @@ Add listener
       - Success Code      : 200
 ```
 
-click Next
-Register Targets -->""We're not gonna add any EC2 here. While we create autoscaling group, it will ask us to show target group and ELB, then we'll indicate this target group there, so whenever autoscaling group launches new machine, it will registered this target group automatically.""
+click `Next`
+
+## Register Targets -->""We're not gonna add any EC2 here. While we create autoscaling group, it will ask us to show target group and ELB, then we'll indicate this target group there, so whenever autoscaling group launches new machine, it will registered this target group automatically.""
+
 without register any target click Next: Review
 
 then create "Target Group"
@@ -555,9 +559,11 @@ switch back to the ALB listener page and select newly created Target Group on th
 
 Click Add listener ---> Protocol HTTP ---> Port 80 ---> Default Action ---> Select newly created target group
 
+```bash
 Secure Listener Settings :
 Security policy: ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09(Recommended)
 Default ACM : \*.ogulcan-erdag.de
+```
 
 - click `Create`
 
@@ -593,15 +599,15 @@ Auto Scaling group name         : aws-capstone-asg
 Launch Template                 : aws-capstone-launch-template
 ```
 
-- Configure settings
+- ## Configure settings
 
-```
+```bash
 Network                         :
     - VPC                       : aws-capstone-vpc
     - Subnets                   : Private 1a and Private 1b
 ```
 
-Configure advanced options
+- ## Configure advanced options
 
 ```bash
 - Load balancing                                : Attach to an existing load balancer
@@ -611,7 +617,7 @@ Configure advanced options
     - Health check grace period     : 300
 ```
 
-- Configure group size and scaling policies
+- ## Configure group size and scaling policies
 
 ```bash
 Group size
@@ -625,6 +631,8 @@ Scaling policies
         - Target value              : 70
 ```
 
+---
+
 <!-- WARNING!!! Sometimes your EC2 has a problem after you create autoscaling group, If you need to look inside one of your instance to make sure where the problem is, please follow these steps...
 
 ```bash
@@ -633,10 +641,11 @@ ssh-add xxxxxxxxxx.pem   (your local )
 ssh -A ec2-user@<Public IP or DNS name of NAT instance> (your local)
 ssh ubuntu@<Private IP of web server>  (in NAT instance)
 You are in the private EC2 instance
-``` 
+```
 
 
 ## break
+
 
 ## Step 14: Create Cloudfront in front of ALB
 
@@ -692,13 +701,17 @@ Other stuff                             : Keep them as are
 ```text
 Price Class                             : Use NA &Europe
 Alternate Domain Names                  : www.ogulcan-erdag.de
-SSL Certificate                         : Custom SSL Certificate (example.com) ---> Select your certificate created before
+SSL Certificate                         : Custom SSL Certificate (example.com) --->
+
+---
+
+Select your certificate created before
 
 Other stuff : Keep them as is
 
 Click `Create distribution`
 
-==> Now test: - Check your LB DNS URL (with http and https)
+#### ==> Now test: - Check your LB DNS URL (with http and https)
 
 ## NEW Version Cloudfront
 
@@ -761,7 +774,6 @@ Other stuff         : Keep them as are
 ### Configure records
 
 ```bash
-
 Record name             : www.ogulcan-erdag.de
 Record Type             : A - Routes traffic to an IPv4 address and some AWS resources
 TTL                     : 300
@@ -790,7 +802,7 @@ Record ID               : S3 Bucket for Secondary record type
 
 - click create records
 
-==> Now test: - Your CloudFront URL (with http and https) - <www>.<your_domain> (with http and https)
+### ==> Now test: - Your CloudFront URL (with http and https) - <www>.<your_domain> (with http and https)
 
 - Ok we've completed our website's configurations. Now, we'll create our DynamoDB table and Lambda function.
 
@@ -832,7 +844,6 @@ then, go to the Lambda Console and click create function
 - Basic Information
 
 ```bash
-
 Function Name           : aws-capstone-lambda-function
 Runtime                 : Python 3.14
 Permissions
@@ -891,9 +902,7 @@ def lambda_handler(event, context):
 
 - WE ALL SET
 
-Clean-up
-
----
+## Clean-up
 
 1. CloudFront>>>>>Disable>>>>>>Delete
 2. RDS
@@ -921,6 +930,5 @@ Clean-up
 Discription: The Ondia Blog Page Application is a Django-based web application deployed on AWS. It uses an Application Load Balancer with an Auto Scaling EC2 group, RDS within a VPC, and S3 for storing user-uploaded images and videos. CloudFront and Route 53 manage and secure incoming traffic.
 
 ```
-
 
 ```
