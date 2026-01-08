@@ -54,7 +54,7 @@ The Blog Page Application is a Django-based web application deployed on AWS Clou
     - Go to route tables on left hand side. We have already one route table as main route table. We will set it up as public route table and create a new one which is going to be private route table.
     - First create a route table and name it `aws-capstone-private-rt`.
     - Next, since we already have main route table which comes with VPC as default lets just name it `aws-capstone-public-rt` and add a route with destination 0.0.0.0/0 and target internet gateway `aws-capstone-igw`.
-    - Then, we need to associate our subnets with these route tables in terms of being public or private. Select the private route table, go to the subnet association subsection and add private subnets to this route table. Similarly, we will do it for public route table and public subnets.
+    - Then, we need to associate our subnets with these route tables in terms of being public or private. Select the private route table, go to the `subnet association subsection` and add private subnets to this route table. Similarly, we will do it for public route table and public subnets.
 
     ## Endpoint
 
