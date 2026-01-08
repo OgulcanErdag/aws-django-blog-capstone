@@ -14,7 +14,7 @@ def lambda_handler(event, context):
         filename2 = filename1[-1]
         
         dynamo_db = boto3.resource('dynamodb')
-        dynamoTable = dynamo_db.Table('aws-capstone-dynamo')
+        dynamoTable = dynamo_db.Table('aws_capstone_dynamo1')
         
         dynamoTable.put_item(Item = {
             'id': filename2,

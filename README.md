@@ -209,7 +209,7 @@ In the architecture, you can configure your infrastructure using the followings,
 ## Project Skeleton
 
 ```text
-Ondia_blog_proj (folder)
+Ogulcan_blog_project (folder)
 |
 |----Readme.md               # Given to the students (Definition of the project)
 |----src (folder)            # Given to the students (Django Application's )

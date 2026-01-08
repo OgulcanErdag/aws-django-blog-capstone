@@ -62,13 +62,16 @@ The Blog Page Application is a Django-based web application deployed on AWS Clou
     - to do this go to the endpoint section on the left hand menu
     - select endpoint
     - click create endpoint
-    - Name tag : aws-capstone-s3-gw-endpoint
-    - Since we will make all EC2s locate on private subnets, Select both private subnets. Select `com.amazonaws.us-east-1.s3` as service name
+    - Name tag : `aws-capstone-s3-gw-endpoint`
+    - Type(Select a category): choose AWS services
+    - Service Region: Enable Cross Region endpoint (checked)
+    - Since we will make all EC2s locate on private subnets, Select both private
+      subnets. Select `com.amazonaws.us-east-1.s3` as service name
     - type : Gateway
     - select `aws-capstone-vpc`
     - select private route table
     - Policy `Full Access`
-    - and then create
+    - and then `Create endpoint`
     - go route table and check the rules. There has been newly created rule seen on table.
 
 ## Break
@@ -250,8 +253,8 @@ create bucket
 
 - Click Create Bucket
 
-```text
-Bucket Name : www.clarusway.us
+```bash
+Bucket Name : www.ogulcan-erdag.de
 Region      : N.Virginia
 Object Ownership
     - ACLs enabled
@@ -263,7 +266,7 @@ Please keep other settings as are
 
 - create bucket
 
-- Selects created `www.clarusway.us` bucket ---> Properties ---> Static website hosting
+- Selects created `www.ogulcan-erdag.de` bucket ---> Properties ---> Static website hosting
 
 ```text
 Static website hosting : Enable
@@ -284,7 +287,7 @@ Before we create our cluster. We need to launch NAT instance. Because, our EC2 c
 Go to the EC2 console and click Launch instance
 - Name: aws-capstone-nat-instance
 - AMI: write "amzn-ami-vpc-nat-hvm" into the filter box
-select NAT Instance `ami-0780b09c119334593`
+  select NAT Instance `ami-0780b09c119334593`
 - Instance Type: t3.micro
 - Key Pair - choose your key pair
 - Network : aws-capstone-vpc
@@ -372,7 +375,7 @@ Save
 
 We will use this later, but it may take a while to activate so we will create it now.
 
-One of our requirements is to make our website connection in secure. It means, our web-site is going to use HTTPS protocol. To use this protocol, we need to get certification. Certification will encrypt data in transit between client and server. We can create our certificate for our DNS name with AWS certification Manager. Go to the certification manager console and click `request a certificate` button. Select `Request a public certificate`, then `request a certificate` ---> \*.clarusway.us ---> DNS validation ---> No tag ---> Review ---> click confirm and request button. Then it takes a while to be activated.
+One of our requirements is to make our website connection in secure. It means, our web-site is going to use HTTPS protocol. To use this protocol, we need to get certification. Certification will encrypt data in transit between client and server. We can create our certificate for our DNS name with AWS certification Manager. Go to the certification manager console and click `request a certificate` button. Select `Request a public certificate`, then `request a certificate` ---> \*.ogulcan-erdag.de---> DNS validation ---> No tag ---> Review ---> click confirm and request button. Then it takes a while to be activated.
 
 ===> Make sure you click `Create DNS Records`
 
@@ -524,7 +527,7 @@ Add listener
 
 ### Create Target Group (New Window pops up)
 
-```text
+```bash
     - Target Type         : Instances
     - Name                : aws-capstone-tg
     - Protocol            : HTTP
@@ -540,6 +543,8 @@ Add listener
       - Timeout           : 5
       - Interval          : 30
       - Success Code      : 200
+```
+
 click Next
 Register Targets -->""We're not gonna add any EC2 here. While we create autoscaling group, it will ask us to show target group and ELB, then we'll indicate this target group there, so whenever autoscaling group launches new machine, it will registered this target group automatically.""
 without register any target click Next: Review
@@ -550,18 +555,16 @@ switch back to the ALB listener page and select newly created Target Group on th
 
 Click Add listener ---> Protocol HTTP ---> Port 80 ---> Default Action ---> Select newly created target group
 
-Secure Listener Settings        :
-    Security policy: ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09(Recommended)
-    Default ACM    : *.clarusway.us
-
-```
+Secure Listener Settings :
+Security policy: ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09(Recommended)
+Default ACM : \*.ogulcan-erdag.de
 
 - click `Create`
 
 After creation of ALB, our ALB have to redirect http traffic to https port. Because our requirement wants to secure traffic. Thats why we should change listener rules. Go to the ALB console and select Listeners sub-section
 
 ```bash
-select HTTP: 80 rule ---> Select Manage Rules | Edit rules
+  select HTTP: 80 rule ---> Select Manage Rules | Edit rules
 - Check Default under "Listener Rules"
 - Click `Actions | Edit rule`
 - Choose Redirect to URL
@@ -592,7 +595,7 @@ Launch Template                 : aws-capstone-launch-template
 
 - Configure settings
 
-```bash
+```
 Network                         :
     - VPC                       : aws-capstone-vpc
     - Subnets                   : Private 1a and Private 1b
@@ -604,7 +607,7 @@ Configure advanced options
 - Load balancing                                : Attach to an existing load balancer
 - Choose from your load balancer target groups  : awscapstoneTargetGroup
 - Health Checks
-    - Health Check Type             : ELB
+    - Health Check Type             : ELB(recommended)
     - Health check grace period     : 300
 ```
 
@@ -630,7 +633,8 @@ ssh-add xxxxxxxxxx.pem   (your local )
 ssh -A ec2-user@<Public IP or DNS name of NAT instance> (your local)
 ssh ubuntu@<Private IP of web server>  (in NAT instance)
 You are in the private EC2 instance
-``` -->
+``` 
+
 
 ## break
 
@@ -687,10 +691,10 @@ Other stuff                             : Keep them as are
 
 ```text
 Price Class                             : Use NA &Europe
-Alternate Domain Names                  : www.clarusway.us
+Alternate Domain Names                  : www.ogulcan-erdag.de
 SSL Certificate                         : Custom SSL Certificate (example.com) ---> Select your certificate created before
-Other stuff                             : Keep them as is
-```
+
+Other stuff : Keep them as is
 
 Click `Create distribution`
 
@@ -700,7 +704,7 @@ Click `Create distribution`
 
 Step 14: Create Cloudfront in front of ALB
 
-```text
+```bash
 Choose a plan : Pay as you go
 Not that !!!
 (When you use this plan you can easly delete the distributions after working  but free tier you can delete only end of the month after changing your plan from free plan to pay as go plan.)
@@ -733,20 +737,20 @@ Come to the Route53 console and select Health checks on the left hand menu. Clic
 
 ### Configure health check
 
-```text
+```bash
 Name                : aws-capstone-health-check
 What to monitor     : Endpoint
 Specify endpoint by : Domain Name
 Protocol            : HTTP
 Domain Name         : Write cloudfront domain name
-Port                : 443
+Port                : 80
 Path                : leave it blank
 Other stuff         : Keep them as are
 ```
 
 - Click Hosted zones on the left hand menu
 
-- click your Hosted zone : clarusway.us
+- click your Hosted zone : ogulcan-erdag.de
 
 - Create Failover scenario
 
@@ -756,15 +760,15 @@ Other stuff         : Keep them as are
 
 ### Configure records
 
-```text
+```bash
 
-Record name             : www.clarusway.us
+Record name             : www.ogulcan-erdag.de
 Record Type             : A - Routes traffic to an IPv4 address and some AWS resources
 TTL                     : 300
 
 First we'll create a primary record for cloudfront
 
-Failover records to add to clarusway.us ---> Define failover record
+Failover records to add to ogulcan-erdag.de ---> Define failover record
 
 Value/Route traffic to  : Alias to cloudfront distribution
                           - Select created cloudfront DNS
@@ -774,7 +778,7 @@ Record ID               : Cloudfront as Primary Record
 ----------------------------------------------------------------
 Second we'll create secondary record for S3
 
-Failover records to add to clarusway.us ---> Define failover record
+Failover records to add to ogulcan-erdag.de ---> Define failover record
 
 Value/Route traffic to  : Alias to S3 website endpoint
                           - Select Region
@@ -798,9 +802,9 @@ Go to the Dynamo Db table and click create table button
 
 - Create DynamoDB table
 
-```text
-Name            : aws-capstone-dynamo # This name is used in Lambda code !!!
-Primary key     : id
+```bash
+Name            : aws_capstone_dynamo1 # This name is used in Lambda code !!!
+Primary key     : id (string)
 Other Stuff     : Keep them as are
 click create
 ```
@@ -813,7 +817,7 @@ Now we'll create a lambda function with the python code given by developer team.
 
 Go to the IAM console and select role on the left hand menu, then create role button
 
-```text
+```bash
 Select Lambda as trusted entity ---> click Next:Permission
 Choose: - AmazonS3fullaccess
         - AmazonDynamoDBFullAccess
@@ -827,7 +831,7 @@ then, go to the Lambda Console and click create function
 
 - Basic Information
 
-```text
+```bash
 
 Function Name           : aws-capstone-lambda-function
 Runtime                 : Python 3.14
@@ -915,3 +919,8 @@ Clean-up
 22. SSM parameters
 
 Discription: The Ondia Blog Page Application is a Django-based web application deployed on AWS. It uses an Application Load Balancer with an Auto Scaling EC2 group, RDS within a VPC, and S3 for storing user-uploaded images and videos. CloudFront and Route 53 manage and secure incoming traffic.
+
+```
+
+
+```
