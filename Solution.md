@@ -69,7 +69,7 @@ The Blog Page Application is a Django-based web application deployed on AWS Clou
       subnets. Select `com.amazonaws.us-east-1.s3` as service name
     - type : Gateway
     - select `aws-capstone-vpc`
-    - select private route table
+    - select `private route table`
     - Policy `Full Access`
     - and then `Create endpoint`
     - go route table and check the rules. There has been newly created rule seen on table.
@@ -201,7 +201,7 @@ Subnets            : Select 2 Private Subnets in these subnets (x.x.11.0, x.x.21
 Choose a database creation method : Standard Create
 Engine Type     : MySQL
 Edition         : MySQL Community
-Version         : 8.0.33 (or latest)
+Version         : 8.0.43 (or latest)
 Templates       : Free Tier
 Settings        :
     - DB instance identifier : aws-capstone-rds
@@ -254,7 +254,7 @@ create bucket
 - Click Create Bucket
 
 ```bash
-Bucket Name : www.ogulcan-erdag.de
+Bucket Name : www.ogulcan-erdag.ch
 Region      : N.Virginia
 Object Ownership
     - ACLs enabled
@@ -264,9 +264,24 @@ Block all public access : Unchecked
 Please keep other settings as are
 ```
 
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::www.ogulcan-erdag.ch/*"
+    }
+  ]
+}
+```
+
 - create bucket
 
-- Selects created `www.ogulcan-erdag.de` bucket ---> Properties ---> Static website hosting
+- Selects created `www.ogulcan-erdag.ch` bucket ---> Properties ---> Static website hosting
 
 ```bash
 Static website hosting : Enable
@@ -283,7 +298,7 @@ save changes
 
 Before we create our cluster. We need to launch NAT instance. Because, our EC2 created by autoscaling groups will be located in private subnet and they need to update themselves, install required files and also need to download folders and files from Github.
 
-```text
+```bash
 Go to the EC2 console and click Launch instance
 - Name: aws-capstone-nat-instance
 - AMI: write "amzn-ami-vpc-nat-hvm" into the filter box
@@ -304,7 +319,7 @@ aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro 
 
 example:
 
-aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name first-key --security-group-ids sg-060d0b00d654dcdcb --subnet-id subnet-0a60639c873ebff7b --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
+aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name ogi-us-key --security-group-ids sg-0e8411576ac12d815 --subnet-id subnet-0fbf476fec8e1aa1d --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
 ```
 
 - !!!!!! Warning!!!!!!select NAT instance and `enable stop` source/destination check
@@ -350,11 +365,11 @@ Save
 
 ## Break
 
-## Step 8: Write RDS database endpoint and S3 Bucket name in settings file given by ondia Fullstack Developer team and push your application into your own public repo on Github
+## Step 8: Write RDS database endpoint and S3 Bucket name in settings file given by Company Fullstack Developer team and push your application into your own public repo on Github
 
 - Examine the existing settings.py file . We need to change database configurations and S3 bucket information. But since it is not secure to hardcode some critical data in side the code we use SSM parameters.So use the new "settings.py" file located in `solution folder` which contains boto3 function to retrieve database parameters.
 
-- Movie and picture files are kept on S3 bucket named `awscapstones<name>blog` as object. You should create an S3 bucket and write name of it on `/src/cblog/settings.py` file as `AWS_STORAGE_BUCKET_NAME` variable. In addition, you must assign region of S3 as `AWS_S3_REGION_NAME` variable
+- Movie and picture files are kept on S3 bucket named `aws-capstones-<name>-blog` as object. You should create an S3 bucket and write name of it on `/src/cblog/settings.py` file as `AWS_STORAGE_BUCKET_NAME` variable. In addition, you must assign region of S3 as `AWS_S3_REGION_NAME` variable
 
 - As for database; Users credentials and blog contents are going to be kept on RDS database. To connect EC2 to RDS, following variables must be assigned on `/src/cblog/settings.py` file after you create RDS;
   a. Database name - ondia
@@ -375,7 +390,7 @@ Save
 
 We will use this later, but it may take a while to activate so we will create it now.
 
-One of our requirements is to make our website connection in secure. It means, our web-site is going to use HTTPS protocol. To use this protocol, we need to get certification. Certification will encrypt data in transit between client and server. We can create our certificate for our DNS name with AWS certification Manager. Go to the certification manager console and click `request a certificate` button. Select `Request a public certificate`, then `request a certificate` ---> \*.ogulcan-erdag.de---> DNS validation ---> No tag ---> Review ---> click confirm and request button. Then it takes a while to be activated.
+One of our requirements is to make our website connection in secure. It means, our web-site is going to use HTTPS protocol. To use this protocol, we need to get certification. Certification will encrypt data in transit between client and server. We can create our certificate for our DNS name with AWS certification Manager. Go to the certification manager console and click `request a certificate` button. Select `Request a public certificate`, then `request a certificate` ---> \*.ogulcan-erdag.ch---> DNS validation ---> No tag ---> Review ---> click confirm and request button. Then it takes a while to be activated.
 
 ===> Make sure you click `Create DNS Records`
 
@@ -562,7 +577,7 @@ Click Add listener ---> Protocol HTTP ---> Port 80 ---> Default Action ---> Sele
 ```bash
 Secure Listener Settings :
 Security policy: ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09(Recommended)
-Default ACM : \*.ogulcan-erdag.de
+Default ACM : \*.ogulcan-erdag.ch
 ```
 
 - click `Create`
@@ -700,7 +715,7 @@ Other stuff                             : Keep them as are
 
 ```text
 Price Class                             : Use NA &Europe
-Alternate Domain Names                  : www.ogulcan-erdag.de
+Alternate Domain Names                  : www.ogulcan-erdag.ch
 SSL Certificate                         : Custom SSL Certificate (example.com) --->
 
 ---
@@ -763,7 +778,7 @@ Other stuff         : Keep them as are
 
 - Click Hosted zones on the left hand menu
 
-- click your Hosted zone : ogulcan-erdag.de
+- click your Hosted zone : ogulcan-erdag.ch
 
 - Create Failover scenario
 
@@ -774,13 +789,13 @@ Other stuff         : Keep them as are
 ### Configure records
 
 ```bash
-Record name             : www.ogulcan-erdag.de
+Record name             : www.ogulcan-erdag.ch
 Record Type             : A - Routes traffic to an IPv4 address and some AWS resources
 TTL                     : 300
 
 First we'll create a primary record for cloudfront
 
-Failover records to add to ogulcan-erdag.de ---> Define failover record
+Failover records to add to ogulcan-erdag.ch ---> Define failover record
 
 Value/Route traffic to  : Alias to cloudfront distribution
                           - Select created cloudfront DNS
@@ -790,7 +805,7 @@ Record ID               : Cloudfront as Primary Record
 ----------------------------------------------------------------
 Second we'll create secondary record for S3
 
-Failover records to add to ogulcan-erdag.de ---> Define failover record
+Failover records to add to ogulcan-erdag.ch ---> Define failover record
 
 Value/Route traffic to  : Alias to S3 website endpoint
                           - Select Region
