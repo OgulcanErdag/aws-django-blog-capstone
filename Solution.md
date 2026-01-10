@@ -254,7 +254,7 @@ create bucket
 - Click Create Bucket
 
 ```bash
-Bucket Name : www.ogulcan-erdag.ch
+Bucket Name : www.ogulcan-erdag.de
 Region      : N.Virginia
 Object Ownership
     - ACLs enabled
@@ -273,7 +273,7 @@ Please keep other settings as are
       "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::www.ogulcan-erdag.ch/*"
+      "Resource": "arn:aws:s3:::www.ogulcan-erdag.de/*"
     }
   ]
 }
@@ -281,7 +281,7 @@ Please keep other settings as are
 
 - create bucket
 
-- Selects created `www.ogulcan-erdag.ch` bucket ---> Properties ---> Static website hosting
+- Selects created `www.ogulcan-erdag.de` bucket ---> Properties ---> Static website hosting
 
 ```bash
 Static website hosting : Enable
@@ -390,7 +390,7 @@ Save
 
 We will use this later, but it may take a while to activate so we will create it now.
 
-One of our requirements is to make our website connection in secure. It means, our web-site is going to use HTTPS protocol. To use this protocol, we need to get certification. Certification will encrypt data in transit between client and server. We can create our certificate for our DNS name with AWS certification Manager. Go to the certification manager console and click `request a certificate` button. Select `Request a public certificate`, then `request a certificate` ---> \*.ogulcan-erdag.ch---> DNS validation ---> No tag ---> Review ---> click confirm and request button. Then it takes a while to be activated.
+One of our requirements is to make our website connection in secure. It means, our web-site is going to use HTTPS protocol. To use this protocol, we need to get certification. Certification will encrypt data in transit between client and server. We can create our certificate for our DNS name with AWS certification Manager. Go to the certification manager console and click `request a certificate` button. Select `Request a public certificate`, then `request a certificate` ---> \*.ogulcan-erdag.de---> DNS validation ---> No tag ---> Review ---> click confirm and request button. Then it takes a while to be activated.
 
 ===> Make sure you click `Create DNS Records`
 
@@ -492,6 +492,7 @@ Amazon machine image (AMI)          : Ubuntu 22.04
 Instance Type                       : t3.micro
 Key Pair                            : your key pair
 Subnet                              : Don't include
+Availability Zone                   : Don't include
 Security Groups                     : aws-capstone-ec2-sg
 Storage (Volumes)                   : keep it as is
 Resource tags                       : Key: Name   Value: aws-capstone-web-server
@@ -577,7 +578,7 @@ Click Add listener ---> Protocol HTTP ---> Port 80 ---> Default Action ---> Sele
 ```bash
 Secure Listener Settings :
 Security policy: ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09(Recommended)
-Default ACM : \*.ogulcan-erdag.ch
+Default ACM : \*.ogulcan-erdag.de
 ```
 
 - click `Create`
@@ -715,8 +716,8 @@ Other stuff                             : Keep them as are
 
 ```text
 Price Class                             : Use NA &Europe
-Alternate Domain Names                  : www.ogulcan-erdag.ch
-SSL Certificate                         : Custom SSL Certificate (example.com) --->
+Alternate Domain Names                  : www.ogulcan-erdag.de
+SSL Certificate                         : Custom SSL Certificate (example.com)
 
 ---
 
@@ -726,11 +727,11 @@ Other stuff : Keep them as is
 
 Click `Create distribution`
 
-#### ==> Now test: - Check your LB DNS URL (with http and https)
+#### ==> Now test: - Check your LB DNS URL (with http and https)--->
 
 ## NEW Version Cloudfront
 
-Step 14: Create Cloudfront in front of ALB
+### Step 14: Create Cloudfront in front of ALB
 
 ```bash
 Choose a plan : Pay as you go
@@ -778,7 +779,7 @@ Other stuff         : Keep them as are
 
 - Click Hosted zones on the left hand menu
 
-- click your Hosted zone : ogulcan-erdag.ch
+- click your Hosted zone : ogulcan-erdag.de
 
 - Create Failover scenario
 
@@ -789,13 +790,13 @@ Other stuff         : Keep them as are
 ### Configure records
 
 ```bash
-Record name             : www.ogulcan-erdag.ch
+Record name             : www.ogulcan-erdag.de
 Record Type             : A - Routes traffic to an IPv4 address and some AWS resources
 TTL                     : 300
 
 First we'll create a primary record for cloudfront
 
-Failover records to add to ogulcan-erdag.ch ---> Define failover record
+Failover records to add to ogulcan-erdag.de ---> Define failover record
 
 Value/Route traffic to  : Alias to cloudfront distribution
                           - Select created cloudfront DNS
@@ -805,7 +806,7 @@ Record ID               : Cloudfront as Primary Record
 ----------------------------------------------------------------
 Second we'll create secondary record for S3
 
-Failover records to add to ogulcan-erdag.ch ---> Define failover record
+Failover records to add to ogulcan-erdag.de ---> Define failover record
 
 Value/Route traffic to  : Alias to S3 website endpoint
                           - Select Region
@@ -867,7 +868,7 @@ Use an existing role    : aws-capstone-lambda-role
 
 Click `Create function`
 
-- Modify Lambda Function timeout to be 30 seconds
+- ### Modify Lambda Function timeout to be 30 seconds
 
 Go to configuration and EDIT Time out as 30 seconds
 
@@ -878,7 +879,7 @@ Go to configuration and EDIT Time out as 30 seconds
 - Go to the `aws-capstone-lambda-function` lambda Function
 - Click `Add trigger`
 - Select `S3` as Source
-- Select `awscapstones<name>blog` bucket
+- Select `aws-capstones-ogulcan-blog` bucket
 - Choose `All object create events`
 - Click the `I acknowledge` check box
 - Click `Add` to add the trigger
