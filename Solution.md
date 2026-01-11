@@ -164,7 +164,7 @@ MYSQL/Aurora(3306)  ----> aws-capstone-ec2-sg
 `Description` : ---  
  `Tier` : Standard  
  `Type` : SecureString (So AWS encrypts sensitive data using KMS)  
- `Value` : Ondia1234
+ `Value` : Ogulcan1234
 
 - Create parameter for `database username` :
 
@@ -206,7 +206,7 @@ Templates       : Free Tier
 Settings        :
     - DB instance identifier : aws-capstone-rds
     - Master username        : `admin` (must be same as the value of `/<yourname>/capstone/username`  )
-    - Password               : `Ondia1234` (must be same as the value of `/<yourname>/capstone/password`  )
+    - Password               : `Ogulcan1234` (must be same as the value of `/<yourname>/capstone/password`  )
 DB Instance Class            : Burstable classes (includes t classes) ---> db.t3.micro
 Storage                      : 20 GB and enable autoscaling(up to 40GB)
 Connectivity:
@@ -219,7 +219,7 @@ Connectivity:
     Additional Configuration : Database port ---> `3306`
 Database authentication ---> Password authentication
 Additional Configuration:
-    - Initial Database Name  : `ondia`
+    - Initial Database Name  : `ogulcan`
     - Backup ---> Enable automatic backups
     - Backup retention period ---> 7 days
     - Select Backup Window ---> Select 03:00 (am) Duration 1 hour
@@ -372,7 +372,7 @@ Save
 - Movie and picture files are kept on S3 bucket named `aws-capstones-<name>-blog` as object. You should create an S3 bucket and write name of it on `/src/cblog/settings.py` file as `AWS_STORAGE_BUCKET_NAME` variable. In addition, you must assign region of S3 as `AWS_S3_REGION_NAME` variable
 
 - As for database; Users credentials and blog contents are going to be kept on RDS database. To connect EC2 to RDS, following variables must be assigned on `/src/cblog/settings.py` file after you create RDS;
-  a. Database name - ondia
+  a. Database name - ogulcan
   b. Database endpoint - "HOST" variables
   c. Port - 3306
   d. User - >>>>> `from parameter store`
@@ -943,7 +943,7 @@ def lambda_handler(event, context):
 21. GitHub tokens
 22. SSM parameters
 
-Discription: The Ondia Blog Page Application is a Django-based web application deployed on AWS. It uses an Application Load Balancer with an Auto Scaling EC2 group, RDS within a VPC, and S3 for storing user-uploaded images and videos. CloudFront and Route 53 manage and secure incoming traffic.
+Description: The Blog Page Application is a Django-based web application deployed on AWS. It uses an Application Load Balancer with an Auto Scaling EC2 group, RDS within a VPC, and S3 for storing user-uploaded images and videos. CloudFront and Route 53 manage and secure incoming traffic.
 
 ```
 

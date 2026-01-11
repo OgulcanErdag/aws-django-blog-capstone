@@ -99,7 +99,7 @@ db_username, db_password = get_ssm_parameters()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ondia',
+        'NAME': 'ogulcan',
         'USER': db_username,
         'PASSWORD': db_password,
         'HOST': 'aws-capstone-rds.cmzq4weqcytj.us-east-1.rds.amazonaws.com',
