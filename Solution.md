@@ -319,7 +319,7 @@ aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro 
 
 example:
 
-aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name ogi-us-key --security-group-ids sg-0e8411576ac12d815 --subnet-id subnet-0fbf476fec8e1aa1d --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
+aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name ogi-us-key --security-group-ids sg-0739fa7eb4b525e09 --subnet-id subnet-091afecf509ec1311 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
 ```
 
 - !!!!!! Warning!!!!!!select NAT instance and `enable stop` source/destination check
@@ -402,14 +402,14 @@ userdata has already given by developer to us. In production environment. you sh
 
 ### First we will need a `ROLE` for our EC2 instance:
 
-- Go to IAM
+- #### Go to IAM:
 - Click `Roles`
 - Click `Create Role`
 - Trusted Entity type: `AWS Service`
 - Use case: `EC2`
 - Add permission `AmazonS3FullAccess`
   `AmazonSSMFullAccess`
-- Role name: aws-capstone-ec2-ssm-s3-full-access
+- Role name: `aws-capstone-ec2-ssm-s3-full-access`
 - Click `Create role`
 
 - Please check if this userdata is working or not. to do this create new instance in public subnet and show to students that it is working
