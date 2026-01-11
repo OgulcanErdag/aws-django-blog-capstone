@@ -221,11 +221,11 @@ In the architecture, you can configure your infrastructure using the followings,
 ```bash
 Ogulcan_blog_project (folder)
 |
-|----Readme.md               # Given to the students (Definition of the project)
-|----src (folder)            # Given to the students (Django Application's )
-|----requirements.txt        # Given to the students (txt file)
-|----lambda_function.py      # Given to the students (python file)
-|----developer_notes.txt     # Given to the students (txt file)
+|----Readme.md
+|----src (folder)
+|----requirements.txt
+|----lambda_function.py
+|----developer_notes.txt
 
 ```
 
