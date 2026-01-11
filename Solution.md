@@ -160,7 +160,7 @@ MYSQL/Aurora(3306)  ----> aws-capstone-ec2-sg
 
 - Create a parameter for `database master password` :
 
-`Name` : /`<yourname>`/capstone/password
+`Name` : `/ogulcan/capstone/password`
 `Description` : ---  
  `Tier` : Standard  
  `Type` : SecureString (So AWS encrypts sensitive data using KMS)  
@@ -168,7 +168,7 @@ MYSQL/Aurora(3306)  ----> aws-capstone-ec2-sg
 
 - Create parameter for `database username` :
 
-`Name` : /`<yourname>`/capstone/username
+`Name` :`/ogulcan/capstone/username`
 `Description` : ---  
  `Tier` : Standard  
  `Type` : SecureString (So AWS encrypts sensitive data using KMS)  
@@ -176,7 +176,7 @@ MYSQL/Aurora(3306)  ----> aws-capstone-ec2-sg
 
 - Create parameter for `Github TOKEN` :
 
-`Name` : /`<yourname>`/capstone/token
+`Name` : `/ogulcan/capstone/token`
 `Description` : ---  
  `Tier` : Standard  
  `Type` : SecureString (So AWS encrypts sensitive data using KMS)  
@@ -240,9 +240,10 @@ One of them is going to be used for videos and pictures which will be uploaded o
 ```bash
 Bucket Name : aws-capstones-ogulcan-blog
 Region      : N.Virginia
+Bucket type:  General purpose
 Object Ownership
     - ACLs enabled
-        - Bucket owner preferred
+    - Bucket owner preferred
 Block Public Access settings for this bucket
 Block all public access : Unchecked !!!!! (Public)
 Other Settings are keep them as are
@@ -256,11 +257,12 @@ create bucket
 ```bash
 Bucket Name : www.ogulcan-erdag.de
 Region      : N.Virginia
+Bucket type:  General purpose
 Object Ownership
     - ACLs enabled
-        - Bucket owner preferred
+    - Bucket owner preferred
 Block Public Access settings for this bucket
-Block all public access : Unchecked
+Block all public access : Unchecked !!!!! (Public)
 Please keep other settings as are
 ```
 
@@ -278,8 +280,6 @@ Please keep other settings as are
   ]
 }
 ```
-
-- create bucket
 
 - Selects created `www.ogulcan-erdag.de` bucket ---> Properties ---> Static website hosting
 
