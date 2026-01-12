@@ -578,7 +578,7 @@ Click Add listener ---> Protocol HTTP ---> Port 80 ---> Default Action ---> Sele
 ```bash
 Secure Listener Settings :
 Security policy: ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09(Recommended)
-Default ACM : \*.ogulcan-erdag.de
+Default ACM : ogulcan-erdag.de
 ```
 
 - click `Create`
@@ -741,7 +741,7 @@ Next
 Distribution options
 Distribution name : aws-capstone-cf
 Distribution type : Single website or app
-Domain : write your subdomain name and Check domain
+Domain : write your subdomain name and Check domain(example : `www.ogulcan-erdag.de`)!!!
 Next
 Specify origin
 Origin type: Elastic Load Balancer
@@ -790,29 +790,35 @@ Other stuff         : Keep them as are
 ### Configure records
 
 ```bash
-Record name             : www.ogulcan-erdag.de
-Record Type             : A - Routes traffic to an IPv4 address and some AWS resources
-TTL                     : 300
-
 First we'll create a primary record for cloudfront
 
 Failover records to add to ogulcan-erdag.de ---> Define failover record
 
-Value/Route traffic to  : Alias to cloudfront distribution
-                          - Select created cloudfront DNS
-Failover record type    : Primary
-Health check            : aws-capstone-health-check
-Record ID               : Cloudfront as Primary Record
+Record name             : www.ogulcan-erdag.de
+Record Type             : A - Routes traffic to an IPv4 address and some AWS resources
+Alias                   : Checked!!!!!!
+
+Route traffic to              : Alias to Cloudfront distribution
+Select created cloudfront DNS : d2n5f6a9i8hvo8.cloudfront.net (your cloudfront DNS)!!!!
+Routing policy                : Failover
+Failover record type          : Primary
+Health check ID               : aws-capstone-health-check
+Record ID                     : Cloudfront as Primary Record
 ----------------------------------------------------------------
 Second we'll create secondary record for S3
 
 Failover records to add to ogulcan-erdag.de ---> Define failover record
 
-Value/Route traffic to  : Alias to S3 website endpoint
-                          - Select Region
-                          - Your created bucket name emerges ---> Select it
+Record name             : www.ogulcan-erdag.de
+Record Type             : A - Routes traffic to an IPv4 address and some AWS resources
+Alias                   : Checked!!!!!!
+
+Route traffic to        : Alias to S3 website endpoint
+Choose Region           : US East (N. Virginia)
+Enter S3 endpoint       : s3-website-us-east-1.amazonaws.com (your s3 bucket)
+Routing policy                : Failover
 Failover record type    : Secondary
-Health check            : No health check
+Health check ID         : No health check
 Record ID               : S3 Bucket for Secondary record type
 ```
 
@@ -828,7 +834,7 @@ Record ID               : S3 Bucket for Secondary record type
 
 Go to the Dynamo Db table and click create table button
 
-- Create DynamoDB table
+- `Create DynamoDB table`
 
 ```bash
 Name            : aws_capstone_dynamo1 # This name is used in Lambda code !!!
@@ -855,15 +861,15 @@ Role Name           : aws-capstone-lambda-role
 Role description    : This role give a permission to lambda to reach S3 and DynamoDB
 ```
 
-then, go to the Lambda Console and click create function
-
-- Basic Information
+then, go to the Lambda Console and click `Create a function`
 
 ```bash
-Function Name           : aws-capstone-lambda-function
-Runtime                 : Python 3.14
-Permissions
-Use an existing role    : aws-capstone-lambda-role
+Choose function         : Author from scratch
+Basic Information
+- Function Name           : aws-capstone-lambda-function
+- Runtime                 : Python 3.14
+- Permissions
+  - Use an existing role    : aws-capstone-lambda-role
 ```
 
 Click `Create function`
