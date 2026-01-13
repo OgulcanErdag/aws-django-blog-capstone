@@ -43,36 +43,271 @@ The Blog Page Application is a Django-based web application deployed on AWS Clou
         - Show the default subnet associations on the main route table
     - Let's enable `auto-assign public IPv4` setting for public subnets. After this modification, whenever we create a machine on public subnets, Public IP address will be automatically assigned to it. Select public subnet-1A and 1B>>>actions>>>edit subnet settings>>>>enable auto-assign public IPv4
 
-  ## Internet Gateway
+  ## Network ACL for Public Subnets
 
-  - Click Internet gateway section on left hand side. Create an internet gateway named `aws-capstone-igw`
+To add an extra network security layer on subnet level, we create a custom Network ACL for the public subnets and attach it to them.
 
-    - ATTACH the internet gateway `aws-capstone-igw` to the newly created VPC `aws-capstone-vpc`. Go to VPC and select newly created VPC and click action ---> Attach to VPC ---> Select VPC we would like to attach to
+- Go to **VPC → Network ACLs → Create network ACL**
+  - **Name tag**: `aws-capstone-public-nacl`
+  - **VPC**: `aws-capstone-vpc`
+  - Click **Create**
 
-    ## Route Table
+### Configure inbound rules (Public NACL)
 
-    - Go to route tables on left hand side. We have already one route table as main route table. We will set it up as public route table and create a new one which is going to be private route table.
-    - First create a route table and name it `aws-capstone-private-rt`.
-    - Next, since we already have main route table which comes with VPC as default lets just name it `aws-capstone-public-rt` and add a route with destination 0.0.0.0/0 and target internet gateway `aws-capstone-igw`.
-    - Then, we need to associate our subnets with these route tables in terms of being public or private. Select the private route table, go to the `subnet association subsection` and add private subnets to this route table. Similarly, we will do it for public route table and public subnets.
+Edit the inbound rules of `aws-capstone-public-nacl` as follows:
 
-    ## Endpoint
+- **Rule #100**
 
-    - According to our project, we need to create endpoint. Because developers don't want to expose our traffic to the internet between EC2s and S3s.
-    - to do this go to the endpoint section on the left hand menu
-    - select endpoint
-    - click create endpoint
-    - Name tag : `aws-capstone-s3-gw-endpoint`
-    - Type(Select a category): choose AWS services
-    - Service Region: Enable Cross Region endpoint (checked)
-    - Since we will make all EC2s locate on private subnets, Select both private
-      subnets. Select `com.amazonaws.us-east-1.s3` as service name
-    - type : Gateway
-    - select `aws-capstone-vpc`
-    - select `private route table`
-    - Policy `Full Access`
-    - and then `Create endpoint`
-    - go route table and check the rules. There has been newly created rule seen on table.
+  - Type: `Custom TCP`
+  - Protocol: `TCP (6)`
+  - Port range: `80`
+  - Source: `0.0.0.0/0`
+  - Allow/Deny: `ALLOW`
+  - ➜ Allows HTTP traffic from the internet to the ALB.
+
+- **Rule #110**
+
+  - Type: `Custom TCP`
+  - Protocol: `TCP (6)`
+  - Port range: `443`
+  - Source: `0.0.0.0/0`
+  - Allow/Deny: `ALLOW`
+  - ➜ Allows HTTPS traffic from the internet to the ALB.
+
+- **Rule #120**
+
+  - Type: `Custom TCP`
+  - Protocol: `TCP (6)`
+  - Port range: `22`
+  - Source: `<your-public-ip>/32`
+  - Allow/Deny: `ALLOW`
+  - ➜ Allows SSH access to the NAT instance only from your own public IP.
+
+- **Rule #130**
+
+  - Type: `Custom TCP`
+  - Protocol: `TCP (6)`
+  - Port range: `1024-65535`
+  - Source: `0.0.0.0/0`
+  - Allow/Deny: `ALLOW`
+  - ➜ Allows ephemeral return traffic (required for ALB health checks and responses).
+
+- ### --> Ephemeral ports (1024-65535): Allow return traffic from ALB health checks and client responses. Required because NACLs are stateless - Linux clients use random source ports in this range when connecting to 80/443.
+
+All other traffic is implicitly **DENY** by the “\*” rule.
+
+### Configure outbound rules (Public NACL)
+
+Edit the outbound rules of `aws-capstone-public-nacl` as follows:
+
+- **Rule #100**
+
+  - Type: `Custom TCP`
+  - Protocol: `TCP (6)`
+  - Port range: `80`
+  - Destination: `0.0.0.0/0`
+  - Allow/Deny: `ALLOW`
+  - ➜ Allows outbound HTTP traffic from NAT/ALB to the internet.
+
+- **Rule #110**
+
+  - Type: `Custom TCP`
+  - Protocol: `TCP (6)`
+  - Port range: `443`
+  - Destination: `0.0.0.0/0`
+  - Allow/Deny: `ALLOW`
+  - ➜ Allows outbound HTTPS traffic from NAT/ALB to the internet.
+
+  - **Rule #115**
+  - Type: `Custom TCP`
+  - Protocol: `TCP (6)`
+  - Port range: `22`
+  - Destination: `10.80.0.0/16`
+  - Allow/Deny: `ALLOW`
+
+- **Rule #120**
+
+  - Type: `Custom TCP`
+  - Protocol: `TCP (6)`
+  - Port range: `1024-65535`
+  - Destination: `0.0.0.0/0`
+  - Allow/Deny: `ALLOW`
+  - ➜ Allows ephemeral outbound traffic.
+
+- ### --> Ephemeral ports (1024-65535): Allow outbound responses to internet clients. Server replies to client's random ephemeral source port (e.g. browser uses 49152 when connecting to port 443).
+
+All other traffic is implicitly **DENY**.
+
+### Associate the public subnets with the Public NACL
+
+- Go to **VPC → Network ACLs** and select `aws-capstone-public-nacl`.
+- Open the **Subnet associations** tab and click **Edit subnet associations**.
+- Select the following subnets:
+  - `aws-capstone-public-subnet-1a`
+  - `aws-capstone-public-subnet-1b`
+- Click **Save**.
+
+From now on, both public subnets use `aws-capstone-public-nacl` instead of the default NACL.
+
+## Network ACL for Private Subnets
+
+To secure backend components (application EC2 and RDS), we create a custom Private Network ACL for the private subnets.
+
+Go to **VPC → Network ACLs → Create network ACL**
+
+- **Name tag**: `aws-capstone-private-nacl`
+- **VPC**: `aws-capstone-vpc`
+- Click **Create**
+
+### Inbound Rules (Private NACL)
+
+Configure the inbound rules of `aws-capstone-private-nacl` as follows.
+(Each CIDR block is a separate rule.)
+
+- **HTTP from ALB (public subnets → private subnets)**
+
+  - **Rule #100**
+    - Type: Custom TCP
+    - Protocol: TCP (6)
+    - Port range: `80`
+    - Source: `10.80.10.0/24`
+    - Allow/Deny: `ALLOW`
+  - **Rule #101**
+    - Port range: `80`
+    - Source: `10.80.20.0/24`
+    - Allow/Deny: `ALLOW`  
+      ➜ Allows ALB → EC2 HTTP traffic from both public subnets.
+
+- **HTTPS from ALB**
+
+  - **Rule #110**
+    - Port range: `443`
+    - Source: `10.80.10.0/24`
+    - Allow/Deny: `ALLOW`
+  - **Rule #111**
+    - Port range: `443`
+    - Source: `10.80.20.0/24`
+    - Allow/Deny: `ALLOW`  
+      ➜ Allows ALB → EC2 HTTPS traffic from both public subnets.
+
+- **RDS traffic (EC2 → RDS)**
+
+  - **Rule #120**
+    - Port range: `3306`
+    - Source: `10.80.11.0/24`
+    - Allow/Deny: `ALLOW`
+  - **Rule #121**
+    - Port range: `3306`
+    - Source: `10.80.21.0/24`
+    - Allow/Deny: `ALLOW`  
+      ➜ Allows EC2 instances in both private subnets to reach RDS on port 3306.
+
+- **SSH from NAT instance (optional for debugging)**
+
+  - **Rule #130**
+    - Port range: `22`
+    - Source: `10.80.10.0/24`
+    - Allow/Deny: `ALLOW`
+  - **Rule #131**
+    - Port range: `22`
+    - Source: `10.80.20.0/24`
+    - Allow/Deny: `ALLOW`  
+      ➜ Allows SSH from the NAT instance in the public subnets to private EC2s (only used for debugging).
+
+- **Ephemeral inbound (return traffic)**
+
+  - **Rule #140**
+    - Port range: `1024-65535`
+    - Source: `0.0.0.0/0`
+    - Allow/Deny: `ALLOW`  
+      ➜ Required for return traffic because NACLs are stateless.
+
+- ### --> Ephemeral inbound (1024-65535): Allow return traffic from NAT/RDS/ALB to private subnet instances. NACL stateless nature requires explicit return path for established connections.
+
+Remaining traffic is implicitly **DENY**.
+
+### Outbound Rules (Private NACL)
+
+Configure the outbound rules as follows:
+
+- **HTTP outbound via NAT**
+
+  - **Rule #200**
+    - Type: Custom TCP
+    - Protocol: TCP (6)
+    - Port range: `80`
+    - Destination: `0.0.0.0/0`
+    - Allow/Deny: `ALLOW`  
+      ➜ Allows outbound HTTP traffic from private instances via NAT.
+
+- **HTTPS outbound via NAT**
+
+  - **Rule #210**
+    - Port range: `443`
+    - Destination: `0.0.0.0/0`
+    - Allow/Deny: `ALLOW`  
+      ➜ Allows outbound HTTPS traffic from private instances via NAT.
+
+- **RDS responses**
+
+  - **Rule #220**
+    - Port range: `3306`
+    - Destination: `10.80.11.0/24`
+    - Allow/Deny: `ALLOW`
+  - **Rule #221**
+    - Port range: `3306`
+    - Destination: `10.80.21.0/24`
+    - Allow/Deny: `ALLOW`  
+      ➜ Allows RDS to respond to EC2 instances in both private subnets.
+
+- **Ephemeral outbound**
+  - **Rule #230**
+    - Port range: `1024-65535`
+    - Destination: `0.0.0.0/0`
+    - Allow/Deny: `ALLOW`  
+      ➜ Required for ephemeral outbound traffic from private instances.
+
+Remaining traffic is implicitly **DENY**.
+
+### Associate Private Subnets
+
+- Go to the **Subnet associations** tab of `aws-capstone-private-nacl`.
+- Click **Edit subnet associations**.
+- Select both private subnets:
+  - `aws-capstone-private-subnet-1a`
+  - `aws-capstone-private-subnet-1b`
+- Click **Save**.
+
+## Internet Gateway
+
+- Click Internet gateway section on left hand side. Create an internet gateway named `aws-capstone-igw`
+
+  - ATTACH the internet gateway `aws-capstone-igw` to the newly created VPC `aws-capstone-vpc`. Go to VPC and select newly created VPC and click action ---> Attach to VPC ---> Select VPC we would like to attach to
+
+  ## Route Table
+
+  - Go to route tables on left hand side. We have already one route table as main route table. We will set it up as public route table and create a new one which is going to be private route table.
+  - First create a route table and name it `aws-capstone-private-rt`.
+  - Next, since we already have main route table which comes with VPC as default lets just name it `aws-capstone-public-rt` and add a route with destination 0.0.0.0/0 and target internet gateway `aws-capstone-igw`.
+  - Then, we need to associate our subnets with these route tables in terms of being public or private. Select the private route table, go to the `subnet association subsection` and add private subnets to this route table. Similarly, we will do it for public route table and public subnets.
+
+  ## Endpoint
+
+  - According to our project, we need to create endpoint. Because developers don't want to expose our traffic to the internet between EC2s and S3s.
+  - to do this go to the endpoint section on the left hand menu
+  - select endpoint
+  - click create endpoint
+  - Name tag : `aws-capstone-s3-gw-endpoint`
+  - Type(Select a category): choose AWS services
+  - Service Region: Enable Cross Region endpoint (checked)
+  - Since we will make all EC2s locate on private subnets, Select both private
+    subnets. Select `com.amazonaws.us-east-1.s3` as service name
+  - type : Gateway
+  - select `aws-capstone-vpc`
+  - select `private route table`
+  - Policy `Full Access`
+  - and then `Create endpoint`
+  - go route table and check the rules. There has been newly created rule seen on table.
 
 ## Break
 
@@ -319,7 +554,7 @@ aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro 
 
 example:
 
-aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name ogi-us-key --security-group-ids sg-0739fa7eb4b525e09 --subnet-id subnet-091afecf509ec1311 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
+aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name ogi-us-key --security-group-ids sg-0d108e59ab7d2eb6d --subnet-id subnet-04d182400b510eddf --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
 ```
 
 - !!!!!! Warning!!!!!!select NAT instance and `enable stop` source/destination check
@@ -864,7 +1099,7 @@ Role description    : This role give a permission to lambda to reach S3 and Dyna
 then, go to the Lambda Console and click `Create a function`
 
 ```bash
-Choose function         : Author from scratch
+Choose function           : Author from scratch
 Basic Information
 - Function Name           : aws-capstone-lambda-function
 - Runtime                 : Python 3.14
@@ -920,8 +1155,7 @@ def lambda_handler(event, context):
     return "Lambda success"
 ```
 
-- Click deploy and all set. go to the website and add a new post with photo, then control if their record is written on DynamoDB.
-
+- Click deploy and all set. go to the website and add a new post with photo, then control if their record is written on DynamoDB. go to `Tables` and click the `Explore table items`. You should see the objects that you uploaded.
 - WE ALL SET
 
 ## Clean-up
