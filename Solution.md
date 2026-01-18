@@ -23,9 +23,7 @@ The Blog Page Application is a Django-based web application deployed on AWS Clou
 - After creating VPC, the first thing we need to do, select VPC, click `Actions` and `enable DNS hostnames` for the `aws-capstone-vpc`. If we do not enable this, a DNS host name won't be assigned to public servers under this VPC.
 
   ## Subnets
-
   - So, now, we can create subnets. In this example, we are gonna create 2 public and 2 private subnets within 2 AZs. Each subnet's block must be covered by `10.80.0.0/16`. They are going to be /24 subnet masks. Subnet masks of Subnets can be shown on below;
-
     - Public Subnets
       `10.80.10.0/24` `10.80.20.0/24` (This mask has 2 to the power of 8 IP addresses, we will be able to use 251 of them. Why? 1. The first address of each block is network address and the last one is broadcast address. Two addresses is reserved for this purpose  
        2. Normally, I can attach totally 254 IPs for each subnet, when we create it outside. But, in AWS, 3 more IP addresses are reserved which are 3. 10.80.10.1 for VPC router 4. 10.80.10.2 for DNS 5. 10.80.10.3 for future usage.
@@ -34,7 +32,6 @@ The Blog Page Application is a Django-based web application deployed on AWS Clou
   - Private Subnets
     `10.80.11.0/24`
     `10.80.21.0/24`
-
     - Go to the subnet section on left hand side and click it. Select create subnet. We are gonna create Subnets one by one to follow directions respectively on below;
       - Create a public subnet named `aws-capstone-public-subnet-1a` under the vpc aws-capstone-VPC in AZ us-east-1a with 10.80.10.0/24
         - Create a private subnet named `aws-capstone-private-subnet-1a` under the vpc aws-capstone-VPC in AZ us-east-1a with 10.80.11.0/24
@@ -57,7 +54,6 @@ To add an extra network security layer on subnet level, we create a custom Netwo
 Edit the inbound rules of `aws-capstone-public-nacl` as follows:
 
 - **Rule #100**
-
   - Type: `Custom TCP`
   - Protocol: `TCP (6)`
   - Port range: `80`
@@ -66,7 +62,6 @@ Edit the inbound rules of `aws-capstone-public-nacl` as follows:
   - ➜ Allows HTTP traffic from the internet to the ALB.
 
 - **Rule #110**
-
   - Type: `Custom TCP`
   - Protocol: `TCP (6)`
   - Port range: `443`
@@ -75,7 +70,6 @@ Edit the inbound rules of `aws-capstone-public-nacl` as follows:
   - ➜ Allows HTTPS traffic from the internet to the ALB.
 
 - **Rule #120**
-
   - Type: `Custom TCP`
   - Protocol: `TCP (6)`
   - Port range: `22`
@@ -84,7 +78,6 @@ Edit the inbound rules of `aws-capstone-public-nacl` as follows:
   - ➜ Allows SSH access to the NAT instance only from your own public IP.
 
 - **Rule #130**
-
   - Type: `Custom TCP`
   - Protocol: `TCP (6)`
   - Port range: `1024-65535`
@@ -101,7 +94,6 @@ All other traffic is implicitly **DENY** by the “\*” rule.
 Edit the outbound rules of `aws-capstone-public-nacl` as follows:
 
 - **Rule #100**
-
   - Type: `Custom TCP`
   - Protocol: `TCP (6)`
   - Port range: `80`
@@ -110,7 +102,6 @@ Edit the outbound rules of `aws-capstone-public-nacl` as follows:
   - ➜ Allows outbound HTTP traffic from NAT/ALB to the internet.
 
 - **Rule #110**
-
   - Type: `Custom TCP`
   - Protocol: `TCP (6)`
   - Port range: `443`
@@ -126,7 +117,6 @@ Edit the outbound rules of `aws-capstone-public-nacl` as follows:
   - Allow/Deny: `ALLOW`
 
 - **Rule #120**
-
   - Type: `Custom TCP`
   - Protocol: `TCP (6)`
   - Port range: `1024-65535`
@@ -165,7 +155,6 @@ Configure the inbound rules of `aws-capstone-private-nacl` as follows.
 (Each CIDR block is a separate rule.)
 
 - **HTTP from ALB (public subnets → private subnets)**
-
   - **Rule #100**
     - Type: Custom TCP
     - Protocol: TCP (6)
@@ -179,7 +168,6 @@ Configure the inbound rules of `aws-capstone-private-nacl` as follows.
       ➜ Allows ALB → EC2 HTTP traffic from both public subnets.
 
 - **HTTPS from ALB**
-
   - **Rule #110**
     - Port range: `443`
     - Source: `10.80.10.0/24`
@@ -191,7 +179,6 @@ Configure the inbound rules of `aws-capstone-private-nacl` as follows.
       ➜ Allows ALB → EC2 HTTPS traffic from both public subnets.
 
 - **RDS traffic (EC2 → RDS)**
-
   - **Rule #120**
     - Port range: `3306`
     - Source: `10.80.11.0/24`
@@ -203,7 +190,6 @@ Configure the inbound rules of `aws-capstone-private-nacl` as follows.
       ➜ Allows EC2 instances in both private subnets to reach RDS on port 3306.
 
 - **SSH from NAT instance (optional for debugging)**
-
   - **Rule #130**
     - Port range: `22`
     - Source: `10.80.10.0/24`
@@ -215,7 +201,6 @@ Configure the inbound rules of `aws-capstone-private-nacl` as follows.
       ➜ Allows SSH from the NAT instance in the public subnets to private EC2s (only used for debugging).
 
 - **Ephemeral inbound (return traffic)**
-
   - **Rule #140**
     - Port range: `1024-65535`
     - Source: `0.0.0.0/0`
@@ -231,7 +216,6 @@ Remaining traffic is implicitly **DENY**.
 Configure the outbound rules as follows:
 
 - **HTTP outbound via NAT**
-
   - **Rule #200**
     - Type: Custom TCP
     - Protocol: TCP (6)
@@ -241,7 +225,6 @@ Configure the outbound rules as follows:
       ➜ Allows outbound HTTP traffic from private instances via NAT.
 
 - **HTTPS outbound via NAT**
-
   - **Rule #210**
     - Port range: `443`
     - Destination: `0.0.0.0/0`
@@ -249,7 +232,6 @@ Configure the outbound rules as follows:
       ➜ Allows outbound HTTPS traffic from private instances via NAT.
 
 - **RDS responses**
-
   - **Rule #220**
     - Port range: `3306`
     - Destination: `10.80.11.0/24`
@@ -281,18 +263,15 @@ Remaining traffic is implicitly **DENY**.
 ## Internet Gateway
 
 - Click Internet gateway section on left hand side. Create an internet gateway named `aws-capstone-igw`
-
   - ATTACH the internet gateway `aws-capstone-igw` to the newly created VPC `aws-capstone-vpc`. Go to VPC and select newly created VPC and click action ---> Attach to VPC ---> Select VPC we would like to attach to
 
   ## Route Table
-
   - Go to route tables on left hand side. We have already one route table as main route table. We will set it up as public route table and create a new one which is going to be private route table.
   - First create a route table and name it `aws-capstone-private-rt`.
   - Next, since we already have main route table which comes with VPC as default lets just name it `aws-capstone-public-rt` and add a route with destination 0.0.0.0/0 and target internet gateway `aws-capstone-igw`.
   - Then, we need to associate our subnets with these route tables in terms of being public or private. Select the private route table, go to the `subnet association subsection` and add private subnets to this route table. Similarly, we will do it for public route table and public subnets.
 
   ## Endpoint
-
   - According to our project, we need to create endpoint. Because developers don't want to expose our traffic to the internet between EC2s and S3s.
   - to do this go to the endpoint section on the left hand menu
   - select endpoint
@@ -554,7 +533,7 @@ aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro 
 
 example:
 
-aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name ogi-us-key --security-group-ids sg-0d108e59ab7d2eb6d --subnet-id subnet-04d182400b510eddf --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
+aws ec2 run-instances --image-id ami-0aa210fd2121a98b7 --instance-type t3.micro --key-name ogi-us-key --security-group-ids sg-070047a924b8d8222 --subnet-id subnet-0d3e7bac41cb896fd --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ogulcan-aws-capstone-nat-instance}]' --disable-api-termination
 ```
 
 - !!!!!! Warning!!!!!!select NAT instance and `enable stop` source/destination check
@@ -666,7 +645,6 @@ Instance properties:
   - aws-capstone-alb-sg
   - aws-capstone-nat-sg
 - Advanced details:
-
   - IAM Instance Profile:
   - aws-capstone-ec2-ssm-s3-full-access
 
