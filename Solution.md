@@ -639,6 +639,7 @@ Instance properties:
 - Name: aws-capstone-test-instance
 - Ubuntu 22.04 (LTS)
 - Key Pair: your key
+- VPC : aws-capstone-vpc
 - Subnet: aws-capstone-public-1a !!!!!!!!!!!!! (PUBLIC SUBNET)
 - Security Group
   - aws-capstone-ec2-sg
@@ -647,6 +648,8 @@ Instance properties:
 - Advanced details:
   - IAM Instance Profile:
   - aws-capstone-ec2-ssm-s3-full-access
+
+    click `Launch instance`
 
 - !!!!!!!!user data : 4 things must be changed!!!!!!!!!
 
