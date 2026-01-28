@@ -297,7 +297,7 @@ Before we start, we need to create our security groups. Our EC2 and RDS are goin
 ```bash
 1. ALB Security Group
 Name            : aws-capstone-alb-sg
-Description     : ALB Security Group allows traffic HTTP and HTTPS ports from anywhere
+Description     : ALB Security Group allows traffic HTTP and HTTPS ports from anywhere.
 VPC             : aws-capstone-vpc
 Inbound Rules
 HTTP(80)    ----> anywhere
@@ -305,7 +305,7 @@ HTTPS (443) ----> anywhere
 
 2. NAT Instance Security Group
 Name            : aws-capstone-nat-sg
-Description     : NAT instance Security Group allows traffic HTTP and HTTPS and SSH ports from anywhere
+Description     : NAT instance Security Group allows traffic HTTP and HTTPS and SSH ports from anywhere.
 VPC             : aws-capstone-vpc
 Inbound Rules
 HTTP(80)    ----> anywhere
@@ -314,7 +314,7 @@ SSH (22)    ----> anywhere
 
 3. EC2 Security Groups
 Name            : aws-capstone-ec2-sg
-Description     : EC2 Security Groups only allows traffic coming from aws-capstone-alb-sg Security Groups for HTTP and HTTPS ports. In addition, ssh port is allowed from NAT instance
+Description     : EC2 Security Groups only allows traffic coming from aws-capstone-alb-sg Security Groups for HTTP and HTTPS ports. In addition, ssh port is allowed from NAT instance.
 VPC             : aws-capstone-vpc
 Inbound Rules
 HTTP(80)    ----> aws-capstone-alb-sg
@@ -510,7 +510,7 @@ save changes
 
 ## Step 7: Create NAT Instance in Public Subnet
 
-Before we create our cluster. We need to launch NAT instance. Because, our EC2 created by autoscaling groups will be located in private subnet and they need to update themselves, install required files and also need to download folders and files from Github.
+Before we create our cluster, We need to launch NAT instance. Because, our EC2 created by autoscaling groups will be located in private subnet and they need to update themselves, install required files and also need to download folders and files from Github.
 
 ```bash
 Go to the EC2 console and click Launch instance
